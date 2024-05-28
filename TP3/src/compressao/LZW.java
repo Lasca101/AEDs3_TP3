@@ -6,15 +6,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.util.ArrayList;
 
-import compressao.BitSequence;
-import compressao.CsvReader;
-
 public class LZW {
 
     public static final int BITS_POR_INDICE = 16;
-    public static final String CSV_PATH = "TP3\\src\\resources\\netflix.csv";
-    public static final String LZW_COMPRESSION_PATH = "TP3\\data\\compressao\\LZW";
-    public static final String LZW_DECOMPRESSION_PATH = "TP3\\data\\descompressao\\LZW";
+    public static final String CSV_PATH = "TP3/src/resources/netflix.csv";
+    public static final String LZW_COMPRESSION_PATH = "TP3/data/compressao/LZW";
+    public static final String LZW_DECOMPRESSION_PATH = "TP3/data/descompressao/LZW";
 
 
     public static void main(String[] args) {
