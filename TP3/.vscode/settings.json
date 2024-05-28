@@ -1,0 +1,7 @@
+{
+    "java.project.sourcePaths": ["TP3/src"],
+    "java.project.outputPath": "TP3/bin",
+    "java.project.referencedLibraries": [
+        "TP3/lib/**/*.jar"
+    ]
+}
