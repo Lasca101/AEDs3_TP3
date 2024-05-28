@@ -8,6 +8,10 @@ import java.util.BitSet;
 import java.util.HashMap;
 
 public class Huffman {
+    public static final String COMPRESSED_PATH = "TP3/data/dataHuffmanCompressaoX.db";
+    public static final String DECOMPRESSED_PATH = "TP3/data/dataHuffmanDescompressaoX.db";
+    public static final String ARVORE_PATH = "TP3/data/dataHuffmanArvoreX.db";
+    public static final String DATA_PATH = "TP3/data/data.db";
     private static long ultimaPosicao = 8;
     public static void main(String[] args) {
         RandomAccessFile arq;
@@ -15,7 +19,7 @@ public class Huffman {
         DataOutputStream dos;
         
         try {
-            arq = new RandomAccessFile("TP3/data/data.db", "rw");
+            arq = new RandomAccessFile(DATA_PATH, "rw");
             baos = new ByteArrayOutputStream();
             dos = new DataOutputStream(baos);
             long tam = arq.length();
@@ -61,7 +65,7 @@ public class Huffman {
         RandomAccessFile arqCompress;
         RandomAccessFile arqArvore;
         try {
-            arqCompress = new RandomAccessFile("TP3/data/dataHuffmanCompressaoX.db", "rw");
+            arqCompress = new RandomAccessFile(COMPRESSED_PATH, "rw");
             BitSet bs = new BitSet();
             int count = 0;
             for (byte b : txt) {
@@ -80,7 +84,7 @@ public class Huffman {
 
             
 
-            // arqArvore = new RandomAccessFile("TP3/data/dataHuffmanArvoreX.db", "rw");
+            // arqArvore = new RandomAccessFile(ARVORE_PATH, "rw");
             // arqArvore.writeLong(0);
             // inicializaArvore(arqArvore, listNos.get(0), listNos.get(0));
             
@@ -166,7 +170,7 @@ public class Huffman {
 
         // RandomAccessFile arq;
         // try {
-        //     arq = new RandomAccessFile("TP3/data/dataHuffmanDescompressaoX.db", "rw");
+        //     arq = new RandomAccessFile(DECOMPRESSED_PATH, "rw");
         //     BitSet bs = BitSet.valueOf(txt);
         //     ByteArrayOutputStream baos = new ByteArrayOutputStream();
         //     DataOutputStream dos = new DataOutputStream(baos);
