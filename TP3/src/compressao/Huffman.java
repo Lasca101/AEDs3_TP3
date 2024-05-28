@@ -80,9 +80,9 @@ public class Huffman {
 
             
 
-            arqArvore = new RandomAccessFile("TP3/data/dataHuffmanArvoreX.db", "rw");
-            arqArvore.writeLong(0);
-            inicializaArvore(arqArvore, listNos.get(0), listNos.get(0));
+            // arqArvore = new RandomAccessFile("TP3/data/dataHuffmanArvoreX.db", "rw");
+            // arqArvore.writeLong(0);
+            // inicializaArvore(arqArvore, listNos.get(0), listNos.get(0));
             
             // arqArvore.writeLong(0);
             // for (Byte b : codigos.keySet()) {
@@ -104,38 +104,38 @@ public class Huffman {
         }
     }
 
-    public static long inicializaArvore(RandomAccessFile arqArvore, No no , No raiz){
-        inicializaArvore(arqArvore, no.esq, raiz);
-        inicializaArvore(arqArvore, no.dir, raiz);
-        try {
-             if(no.esq == null && no.dir == null){
-                if (no.simbolo == raiz.simbolo) {
-                    arqArvore.seek(0);
-                    arqArvore.writeLong(ultimaPosicao);
-                    arqArvore.seek(ultimaPosicao);
-                }
-                arqArvore.writeLong(-1);
-                arqArvore.writeLong(-1);
-                arqArvore.writeByte(no.simbolo);
-                ultimaPosicao += 17;
-            } else if(no.esq != null && no.dir == null){
-                long pontRaiz = arqArvore.getFilePointer();
-                arqArvore.seek(0);
-                arqArvore.writeLong(pontRaiz);
-                arqArvore.seek(pontRaiz);
-            } else if(no.esq == null && no.dir != null){
-                long pontRaiz = arqArvore.getFilePointer();
-                arqArvore.seek(0);
-                arqArvore.writeLong(pontRaiz);
-                arqArvore.seek(pontRaiz);
-            } 
-            arqArvore.writeLong(-1);
-            arqArvore.writeLong(-1);
-            arqArvore.writeByte(no.simbolo);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    // public static long inicializaArvore(RandomAccessFile arqArvore, No no , No raiz){
+    //     inicializaArvore(arqArvore, no.esq, raiz);
+    //     inicializaArvore(arqArvore, no.dir, raiz);
+    //     try {
+    //          if(no.esq == null && no.dir == null){
+    //             if (no.simbolo == raiz.simbolo) {
+    //                 arqArvore.seek(0);
+    //                 arqArvore.writeLong(ultimaPosicao);
+    //                 arqArvore.seek(ultimaPosicao);
+    //             }
+    //             arqArvore.writeLong(-1);
+    //             arqArvore.writeLong(-1);
+    //             arqArvore.writeByte(no.simbolo);
+    //             ultimaPosicao += 17;
+    //         } else if(no.esq != null && no.dir == null){
+    //             long pontRaiz = arqArvore.getFilePointer();
+    //             arqArvore.seek(0);
+    //             arqArvore.writeLong(pontRaiz);
+    //             arqArvore.seek(pontRaiz);
+    //         } else if(no.esq == null && no.dir != null){
+    //             long pontRaiz = arqArvore.getFilePointer();
+    //             arqArvore.seek(0);
+    //             arqArvore.writeLong(pontRaiz);
+    //             arqArvore.seek(pontRaiz);
+    //         } 
+    //         arqArvore.writeLong(-1);
+    //         arqArvore.writeLong(-1);
+    //         arqArvore.writeByte(no.simbolo);
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
     public static void descompactacao(byte[] txt) {
         // HashMap<Byte, Integer> freq = new HashMap<>();
