@@ -4,6 +4,7 @@ package main;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.RandomAccessFile;
@@ -11,48 +12,65 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 import resources.Netflix;
+import compressao.Huffman;
 
 public class TP {
     public static final String DATA_PATH = "TP3/data/data.db";
     public static final String CSV_PATH = "TP3/src/resources/netflix.csv";
     public static void main(String[] args) throws Exception {
+        start();
+    }
+
+    public static void start() throws Exception {
         Scanner sc = new Scanner(System.in);
+        System.out.println("#------------------------------------#");
+        System.out.println("Bem-vindo ao sistema de gerenciamento de séries e filmes da Netflix.");
+        System.out.println("Deseja continuar com a base de dados atual(1) ou iniciar uma nova(2)?");
+        System.out.print("Opção: ");
+        int opcao = sc.nextInt();
+        if(opcao == 2){
+            FileOutputStream arqByte;
+            DataOutputStream dos;
 
-        FileOutputStream arqByte;
-        DataOutputStream dos;
+            // Escrevendo dados do .csv no arquivo .db
+            try {
+                FileReader fileReader = new FileReader(CSV_PATH);
+                BufferedReader arq = new BufferedReader(fileReader);
 
-        // Escrevendo dados do .csv no arquivo .db
-        try {
-            FileReader fileReader = new FileReader(CSV_PATH);
-            BufferedReader arq = new BufferedReader(fileReader);
+                arqByte = new FileOutputStream(DATA_PATH);
+                dos = new DataOutputStream(arqByte);
+                byte[] ba;
 
-            arqByte = new FileOutputStream(DATA_PATH);
-            dos = new DataOutputStream(arqByte);
-            byte[] ba;
+                arq.readLine();// le primeira linha do .csv que tem nomes dos atributos
+                dos.writeInt(0);
+                int idFinal = 0;
+                while (arq.ready()) {
+                    Netflix programa = new Netflix();
+                    programa.ler(arq.readLine());
 
-            arq.readLine();// le primeira linha do .csv que tem nomes dos atributos
-            dos.writeInt(0);
-            int idFinal = 0;
-            while (arq.ready()) {
-                Netflix programa = new Netflix();
-                programa.ler(arq.readLine());
+                    ba = programa.toByteArray();
+                    dos.writeBoolean(false);
+                    dos.writeShort(ba.length);
+                    dos.write(ba);
+                    idFinal = programa.getId();
+                }
+                RandomAccessFile start = new RandomAccessFile(DATA_PATH, "rw");
+                start.seek(0);
+                start.writeInt(idFinal);
+                start.close();
 
-                ba = programa.toByteArray();
-                dos.writeBoolean(false);
-                dos.writeShort(ba.length);
-                dos.write(ba);
-                idFinal = programa.getId();
+                dos.close();
+                arqByte.close();
+                arq.close();
+            } catch (Exception e) {
+                System.out.println(e.getMessage() + "\n" + e.getLocalizedMessage());
             }
-            RandomAccessFile start = new RandomAccessFile(DATA_PATH, "rw");
-            start.seek(0);
-            start.writeInt(idFinal);
-            start.close();
-
-            dos.close();
-            arqByte.close();
-            arq.close();
-        } catch (Exception e) {
-            System.out.println(e.getMessage() + "\n" + e.getLocalizedMessage());
+            menu();
+        } else if(opcao == 1){
+            menu();
+        } else {
+            System.out.println("Opção inválida.");
+            start();
         }
 
         menu();
@@ -64,7 +82,7 @@ public class TP {
         Scanner sc = new Scanner(System.in);
 
         System.out.println("#--------------- MENU ---------------#");
-        System.out.print("\n1) Adicionar novo registro na base de dados\n2) Ler registro da base\n3) Atualizar registro\n4) Deletar registro\n5) Sair\n Opção: ");
+        System.out.print("\n1) Adicionar novo registro na base de dados\n2) Ler registro da base\n3) Atualizar registro\n4) Deletar registro\n5) Compactar base de dados\n6) Descompactar base de dados\n7) Sair\nOpção: ");
 
         switch (sc.nextInt()) {
             //Create
@@ -189,8 +207,62 @@ public class TP {
 
                 menu();
                 break;
-
+            
             case 5:
+                System.out.println("\n#------------------------------------#\nCompactar base de dados.");
+                String ultimaCompactacao = "TP3/data/dataHuffmanCompressao1.db";
+                int num = 1;
+                File fileUltimaCompactacao = new File(ultimaCompactacao);
+                if(fileUltimaCompactacao.exists()){
+                    boolean versao = true;
+                    while(versao){
+                        ultimaCompactacao = "TP3/data/dataHuffmanCompressao" + num + ".db";
+                        fileUltimaCompactacao = new File(ultimaCompactacao);
+                        if(fileUltimaCompactacao.exists()){
+                            num++;
+                        } else {
+                            versao = false;
+                        }
+                    }
+                    Huffman.compactacao(ultimaCompactacao, num);
+                } else {
+                    Huffman.compactacao(ultimaCompactacao, num);
+                }
+                
+                menu();
+                break;
+            
+            case 6:
+                System.out.println("\n#------------------------------------#\nDescompactar base de dados.");
+                //escolher versao da compressao para descompactar
+                
+                String versaoCompactacao = "TP3/data/dataHuffmanCompressao1.db";
+                File file = new File(versaoCompactacao);
+                if(file.exists()){
+                    boolean versao = true;
+                    int numV = 1;
+                    while(versao){
+                        versaoCompactacao = "TP3/data/dataHuffmanCompressao" + numV + ".db";
+                        file = new File(versaoCompactacao);
+                        if(file.exists()){
+                            System.out.println("Versão " + numV + " disponível.");
+                            numV++;
+                        } else {
+                            versao = false;
+                        }
+                    }
+                    System.out.print("Digite o número da versão que deseja descompactar: ");
+                    numV = sc.nextInt();
+                    versaoCompactacao = "TP3/data/dataHuffmanCompressao" + numV + ".db";
+                    Huffman.descompactacao(versaoCompactacao, numV);
+                } else {
+                    System.out.println("Nenhuma versão disponível.");
+                }
+                
+                menu();
+                break;
+
+            case 7:
                 System.out.println("\n#------------------------------------#\nPrograma encerrado.");
                 System.out.println("#------------------------------------#\n");
                 System.exit(0);

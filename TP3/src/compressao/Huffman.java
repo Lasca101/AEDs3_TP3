@@ -9,15 +9,13 @@ import java.util.BitSet;
 import java.util.HashMap;
 
 public class Huffman {
-    public static final String COMPRESSED_PATH = "TP3/data/dataHuffmanCompressaoX.db";
-    public static final String DECOMPRESSED_PATH = "TP3/data/dataHuffmanDescompressaoX.db";
-    public static final String ARVORE_PATH = "TP3/data/dataHuffmanArvoreX.db";
     public static final String DATA_PATH = "TP3/data/data.db";
-    public static void main(String[] args) {
-        excluiArquivos();
+
+    public static void compactacao(String compactacaoPath, int num) {
         RandomAccessFile arq;
         ByteArrayOutputStream baos;
         DataOutputStream dos;
+        byte[] txt = null;
         
         try {
             arq = new RandomAccessFile(DATA_PATH, "rw");
@@ -27,17 +25,15 @@ public class Huffman {
             for (int i = 0; i < tam; i++) {
                 dos.writeByte(arq.readByte());
             }
-            byte[] txt = baos.toByteArray();
-            compactacao(txt);
-            descompactacao();
+            txt = baos.toByteArray();
 
             arq.close();
+            dos.close();
+            baos.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public static void compactacao(byte[] txt) {
+        
         HashMap<Byte, Integer> freq = new HashMap<>();
         for (byte b : txt) {
             if (freq.containsKey(b)) {
@@ -66,7 +62,7 @@ public class Huffman {
 
         RandomAccessFile arqCompress;
         try {
-            arqCompress = new RandomAccessFile(COMPRESSED_PATH, "rw");
+            arqCompress = new RandomAccessFile(compactacaoPath, "rw");
             BitSet bs = new BitSet();
             int count = 0;
             for (byte b : txt) {
@@ -83,23 +79,27 @@ public class Huffman {
             arqCompress.write(txtCodificado);
             arqCompress.close();
 
-            armazenaArvore(listNos.get(0));
+            String arvorePath = "TP3/data/dataHuffmanArvore" + num + ".db";
+            armazenaArvore(listNos.get(0), arvorePath);
 
-            
+            System.out.println("Base de dados compactada com sucesso.");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void descompactacao() {
+    public static void descompactacao(String compressedPath, int num) {
         RandomAccessFile arqCompress;
         RandomAccessFile arqDescompress;
         try {
+            String arvorePath = "TP3/data/dataHuffmanArvore" + num + ".db";
             No raiz = null;
-            raiz = recuperarArvore(raiz, 0);
+            raiz = recuperarArvore(raiz, 0, arvorePath);
 
-            arqCompress = new RandomAccessFile(COMPRESSED_PATH, "rw");
-            arqDescompress = new RandomAccessFile(DECOMPRESSED_PATH, "rw");
+            arqCompress = new RandomAccessFile(compressedPath, "rw");
+            String descompressedPath = "TP3/data/data.db";
+            excluiArquivos(descompressedPath);
+            arqDescompress = new RandomAccessFile(descompressedPath, "rw");
 
             byte[] txtCodificado = new byte[(int) arqCompress.length()];
             arqCompress.read(txtCodificado);
@@ -121,18 +121,20 @@ public class Huffman {
             }
 
             arqDescompress.close();
+
+            System.out.println("\nBase de dados descompactada com sucesso.");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static No recuperarArvore(No no, long pos) {
+    public static No recuperarArvore(No no, long pos, String arvorePath) {
         long posEsq = 0;
         long posDir = 0;
         byte simbolo = 0;
 
         try {
-            RandomAccessFile arqArvore = new RandomAccessFile(ARVORE_PATH, "rw");
+            RandomAccessFile arqArvore = new RandomAccessFile(arvorePath, "rw");
             arqArvore.seek(pos);
             posEsq = arqArvore.readLong();
             posDir = arqArvore.readLong();
@@ -144,23 +146,23 @@ public class Huffman {
 
         no = new No(simbolo);
         if(posEsq != -1 && posDir != -1) {
-            no.esq = recuperarArvore(no.esq, posEsq);
-            no.dir = recuperarArvore(no.dir, posDir);
+            no.esq = recuperarArvore(no.esq, posEsq, arvorePath);
+            no.dir = recuperarArvore(no.dir, posDir, arvorePath);
         } else if(posEsq != -1 && posDir == -1) {
-            no.esq = recuperarArvore(no.esq, posEsq);
+            no.esq = recuperarArvore(no.esq, posEsq, arvorePath);
         } else if(posEsq == -1 && posDir != -1) {
-            no.dir = recuperarArvore(no.dir, posDir);
+            no.dir = recuperarArvore(no.dir, posDir, arvorePath);
         }
         return no;
     }
 
-    public static long armazenaArvore(No no){
+    public static long armazenaArvore(No no, String arvorePath){
         if(no == null){
             return -1;
         } else {
             long tam = 0;
             try {
-            RandomAccessFile arqArvore = new RandomAccessFile(ARVORE_PATH, "rw");
+            RandomAccessFile arqArvore = new RandomAccessFile(arvorePath, "rw");
             tam = arqArvore.length();
             arqArvore.seek(tam);
             arqArvore.writeLong(-1);
@@ -168,8 +170,8 @@ public class Huffman {
             arqArvore.writeByte(no.simbolo);
 
             arqArvore.seek(tam);
-            arqArvore.writeLong(armazenaArvore(no.esq));
-            arqArvore.writeLong(armazenaArvore(no.dir));
+            arqArvore.writeLong(armazenaArvore(no.esq, arvorePath));
+            arqArvore.writeLong(armazenaArvore(no.dir, arvorePath));
 
             arqArvore.close();
             } catch (Exception e) {
@@ -190,19 +192,9 @@ public class Huffman {
         gerarCodigos(no.dir, codigo + "1", codigos);
     }
 
-    public static void excluiArquivos() {
+    public static void excluiArquivos(String path) {
         try {
-            File file = new File(COMPRESSED_PATH);
-            if (file.exists()) {
-                file.delete();
-            }
-
-            file = new File(DECOMPRESSED_PATH);
-            if (file.exists()) {
-                file.delete();
-            }
-
-            file = new File(ARVORE_PATH);
+            File file = new File(path);
             if (file.exists()) {
                 file.delete();
             }
