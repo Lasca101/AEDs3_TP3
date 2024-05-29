@@ -13,6 +13,8 @@ import java.util.Scanner;
 import resources.Netflix;
 
 public class TP {
+    public static final String DATA_PATH = "TP3/data/data.db";
+    public static final String CSV_PATH = "TP3/src/resources/netflix.csv";
     public static void main(String[] args) throws Exception {
         Scanner sc = new Scanner(System.in);
 
@@ -21,10 +23,10 @@ public class TP {
 
         // Escrevendo dados do .csv no arquivo .db
         try {
-            FileReader fileReader = new FileReader("netflix.csv");
+            FileReader fileReader = new FileReader(CSV_PATH);
             BufferedReader arq = new BufferedReader(fileReader);
 
-            arqByte = new FileOutputStream("data.db");
+            arqByte = new FileOutputStream(DATA_PATH);
             dos = new DataOutputStream(arqByte);
             byte[] ba;
 
@@ -41,7 +43,7 @@ public class TP {
                 dos.write(ba);
                 idFinal = programa.getId();
             }
-            RandomAccessFile start = new RandomAccessFile("data.db", "rw");
+            RandomAccessFile start = new RandomAccessFile(DATA_PATH, "rw");
             start.seek(0);
             start.writeInt(idFinal);
             start.close();
@@ -206,7 +208,7 @@ public class TP {
     public static void create(Netflix netflix) throws Exception {
         RandomAccessFile arq;
         try {
-            arq = new RandomAccessFile("data.db", "rw");
+            arq = new RandomAccessFile(DATA_PATH, "rw");
             byte[] ba;
             arq.seek(0);
             //pega ultimo id do .db e o atualiza
@@ -234,7 +236,7 @@ public class TP {
     public static void read(int id) throws Exception {
         RandomAccessFile arq;
         try {
-            arq = new RandomAccessFile("data.db", "rw");
+            arq = new RandomAccessFile(DATA_PATH, "rw");
             // move ponteiro do arquivo para priemeiro registro, pulando byts de registro do último id registrado
             arq.seek(4);
             long ptr = arq.getFilePointer();
@@ -285,7 +287,7 @@ public class TP {
     public static void update(Netflix netflix) {
         RandomAccessFile arq;
         try {
-            arq = new RandomAccessFile("data.db", "rw");
+            arq = new RandomAccessFile(DATA_PATH, "rw");
             byte[] ba = netflix.toByteArray();//transforma objeto em vetor de bytes
             arq.seek(4); // Pula o ID final armazenado no início do arquivo
 
@@ -346,7 +348,7 @@ public class TP {
     public static void delete(int id) throws Exception {
         RandomAccessFile arq;
         try {
-            arq = new RandomAccessFile("data.db", "rw");
+            arq = new RandomAccessFile(DATA_PATH, "rw");
             // move ponteiro do arquivo para priemeiro registro, pulando byts de registro do último id registrado
             arq.seek(4);
             long ptr = arq.getFilePointer();

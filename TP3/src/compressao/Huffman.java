@@ -9,10 +9,10 @@ import java.util.BitSet;
 import java.util.HashMap;
 
 public class Huffman {
-    public static final String COMPRESSED_PATH = "data/dataHuffmanCompressaoX.db";
-    public static final String DECOMPRESSED_PATH = "data/dataHuffmanDescompressaoX.db";
-    public static final String ARVORE_PATH = "data/dataHuffmanArvoreX.db";
-    public static final String DATA_PATH = "data/data.db";
+    public static final String COMPRESSED_PATH = "TP3/data/dataHuffmanCompressaoX.db";
+    public static final String DECOMPRESSED_PATH = "TP3/data/dataHuffmanDescompressaoX.db";
+    public static final String ARVORE_PATH = "TP3/data/dataHuffmanArvoreX.db";
+    public static final String DATA_PATH = "TP3/data/data.db";
     public static void main(String[] args) {
         excluiArquivos();
         RandomAccessFile arq;
