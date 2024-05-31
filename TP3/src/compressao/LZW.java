@@ -1,11 +1,13 @@
 package compressao;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -20,28 +22,29 @@ public class LZW {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         RandomAccessFile arq;
         ByteArrayOutputStream baos;
         DataOutputStream dos;
         try {
-            arq = new RandomAccessFile("TP3/data/data.db", "rw");
+            arq = new RandomAccessFile("TP3/data/data.db", "r");
             baos = new ByteArrayOutputStream();
-            dos = new DataOutputStream(baos);
-            long tam = arq.length();
-            for (int i = 0; i < tam; i++) {
-                dos.writeByte(arq.readByte());
+            byte[] buffer = new byte[1024]; // Um buffer de 1024 bytes
+            int bytesRead;
+            while ((bytesRead = arq.read(buffer)) != -1) {
+                baos.write(buffer, 0, bytesRead);
             }
 
-            System.out.println("Menu:");
-            System.out.println("1. Compactar arquivo");
-            System.out.println("2. Descompactar arquivo");
-            System.out.println("3. Sair");
-            int choice;
-
+            int choice = 0;
             do {
+                System.out.println("Menu:");
+                System.out.println("1. Compactar arquivo");
+                System.out.println("2. Descompactar arquivo");
+                System.out.println("3. Sair");
                 System.out.print("Digite sua opção: ");
-                choice = sc.nextInt();
+                String input = reader.readLine();
+                choice = Integer.parseInt(input.trim());
                 switch (choice) {
                     case 1:
                         byte[] txt = baos.toByteArray();
@@ -52,6 +55,7 @@ public class LZW {
                             System.out.println("codificado em " + compactado.length + " bytes");
                             float taxaCompressao = calculaTaxa(txt.length, compactado.length);
                             System.out.printf("Taxa de compressão: %.2f%n", taxaCompressao);
+                            countArqCompac++;
                             break;
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -59,6 +63,8 @@ public class LZW {
                         break;
                     case 2:
                         descompactarArquivo();
+                        sc.nextLine();
+
                         break;
                     case 3:
                         System.out.println("Saindo...");
@@ -84,6 +90,7 @@ public class LZW {
             byte[] compactado = leArquivoComp(caminhoArqCompCerto);
             byte[] descompactado = descompactacao(compactado);
             System.out.println("Arquivo descompactado com sucesso. Conteúdo:\n" + new String(descompactado));
+            System.out.println();
         } catch (IOException e) {
             System.out.println("Erro ao ler o arquivo.");
             e.printStackTrace();
@@ -133,9 +140,6 @@ public class LZW {
             }
 
         }
-        // System.out.println("Indices: ");
-        // System.out.println(saida);
-        System.out.println("Número de elementos no dicionário: " + dicionario.size());
 
         BitSequence bs = new BitSequence(BITS_POR_INDICE);
         for (i = 0; i < saida.size(); i++) {
@@ -158,64 +162,49 @@ public class LZW {
 
     }
 
-    // @SuppressWarnings("unchecked")
     public static byte[] descompactacao(byte[] txt) throws Exception {
-
         ByteArrayInputStream bais = new ByteArrayInputStream(txt);
         DataInputStream dis = new DataInputStream(bais);
-        int n = dis.readInt();
+        int n = dis.readInt(); // Número de entradas no bit sequence
         byte[] bytes = new byte[txt.length - 4];
         dis.read(bytes);
         BitSequence bs = new BitSequence(BITS_POR_INDICE);
         bs.setBytes(n, bytes);
 
-        // Recupera os números do bitset
         ArrayList<Integer> entrada = new ArrayList<>();
-        int i, j;
-        for (i = 0; i < bs.size(); i++) {
-            j = bs.get(i);
-            entrada.add(j);
+        for (int i = 0; i < bs.size(); i++) {
+            entrada.add(bs.get(i));
         }
 
-        // inicializa o dicionário
-        ArrayList<ArrayList<Byte>> dicionario = new ArrayList<>(); // dicionario
-        ArrayList<Byte> auxDic; // auxiliar para cada elemento do dicionario
-        byte b;
-        for (j = -128; j < 128; j++) {
-            b = (byte) j;
-            auxDic = new ArrayList<>();
-            auxDic.add(b);
+        ArrayList<ArrayList<Byte>> dicionario = new ArrayList<>();
+        for (int i = -128; i < 128; i++) {
+            ArrayList<Byte> auxDic = new ArrayList<>();
+            auxDic.add((byte) i);
             dicionario.add(auxDic);
         }
 
-        // Decodifica os números
-        ArrayList<Byte> proxAuxDic;
         ArrayList<Byte> msgDecodificada = new ArrayList<>();
-        i = 0;
+        int i = 0;
         while (i < entrada.size()) {
-
-            // decodifica o número
-            auxDic = (ArrayList<Byte>) (dicionario.get(entrada.get(i)).clone());
+            ArrayList<Byte> auxDic = new ArrayList<>(dicionario.get(entrada.get(i)));
             msgDecodificada.addAll(auxDic);
 
-            // decodifica o próximo número
-            i++;
-            if (i < entrada.size()) {
-                proxAuxDic = dicionario.get(entrada.get(i));
+            // Prepara a próxima entrada para adicionar ao dicionário se possível
+            if (i + 1 < entrada.size()) {
+                ArrayList<Byte> proxAuxDic = new ArrayList<>(dicionario.get(entrada.get(i + 1)));
                 auxDic.add(proxAuxDic.get(0));
-
-                // adiciona o vetor de bytes (+1 byte do próximo vetor) ao fim do dicionário
-                if (dicionario.size() < Math.pow(2, BITS_POR_INDICE))
-                    dicionario.add(auxDic);
+                if (dicionario.size() < Math.pow(2, BITS_POR_INDICE)) {// verifica se cabe no dicionário
+                    dicionario.add(new ArrayList<>(auxDic)); // Adiciona uma nova entrada ao dicionário
+                }
             }
-
+            i++;
         }
 
         byte[] msgDecodificadaBytes = new byte[msgDecodificada.size()];
-        for (i = 0; i < msgDecodificada.size(); i++)
+        for (i = 0; i < msgDecodificada.size(); i++) {
             msgDecodificadaBytes[i] = msgDecodificada.get(i);
+        }
         return msgDecodificadaBytes;
-
     }
 
     public static float calculaTaxa(int tamOriginal, int tamComprimido) {
@@ -229,10 +218,11 @@ public class LZW {
     // le o arquivo compactado escolhido e o retorna como array de bytes para ser
     // descompactado
     private static byte[] leArquivoComp(String caminhoArqCompCerto) throws IOException {
-        java.io.RandomAccessFile file = new java.io.RandomAccessFile(caminhoArqCompCerto, "r");
-        byte[] bytes = new byte[(int) file.length()];
-        file.readFully(bytes);
-        file.close();
-        return bytes;
+        try (RandomAccessFile file = new RandomAccessFile(caminhoArqCompCerto, "r")) {
+            byte[] bytes = new byte[(int) file.length()];
+            file.readFully(bytes);
+            return bytes;
+        }
     }
+
 }
