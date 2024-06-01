@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.Scanner;
 import resources.Netflix;
 import compressao.Huffman;
+import compressao.LZW;
 
 public class TP {
     public static final String DATA_PATH = "TP3/data/data.db";
@@ -210,23 +211,28 @@ public class TP {
             
             case 5:
                 System.out.println("\n#------------------------------------#\nCompactar base de dados.");
-                String ultimaCompactacao = "TP3/data/dataHuffmanCompressao1.db";
+                String ultimaCompactacaoHuff = "TP3/data/dataHuffmanCompressao1.db";
+                String ultimaCompactacaoLZW = "TP3/data/dataLZWCompressao1.db";
+                
                 int num = 1;
-                File fileUltimaCompactacao = new File(ultimaCompactacao);
+                File fileUltimaCompactacao = new File(ultimaCompactacaoHuff);
                 if(fileUltimaCompactacao.exists()){
                     boolean versao = true;
                     while(versao){
-                        ultimaCompactacao = "TP3/data/dataHuffmanCompressao" + num + ".db";
-                        fileUltimaCompactacao = new File(ultimaCompactacao);
+                        ultimaCompactacaoHuff = "TP3/data/dataHuffmanCompressao" + num + ".db";
+                        fileUltimaCompactacao = new File(ultimaCompactacaoHuff);
                         if(fileUltimaCompactacao.exists()){
                             num++;
                         } else {
                             versao = false;
                         }
                     }
-                    Huffman.compactacao(ultimaCompactacao, num);
+                    ultimaCompactacaoLZW = "TP3/data/dataLZWCompressao" + num + ".db";
+                    LZW.compactacao(ultimaCompactacaoLZW);
+                    Huffman.compactacao(ultimaCompactacaoHuff, num);
                 } else {
-                    Huffman.compactacao(ultimaCompactacao, num);
+                    LZW.compactacao(ultimaCompactacaoLZW);
+                    Huffman.compactacao(ultimaCompactacaoHuff, num);
                 }
                 
                 menu();
@@ -236,14 +242,14 @@ public class TP {
                 System.out.println("\n#------------------------------------#\nDescompactar base de dados.");
                 //escolher versao da compressao para descompactar
                 
-                String versaoCompactacao = "TP3/data/dataHuffmanCompressao1.db";
-                File file = new File(versaoCompactacao);
+                String versaoCompactacaoHuff = "TP3/data/dataHuffmanCompressao1.db";
+                File file = new File(versaoCompactacaoHuff);
                 if(file.exists()){
                     boolean versao = true;
                     int numV = 1;
                     while(versao){
-                        versaoCompactacao = "TP3/data/dataHuffmanCompressao" + numV + ".db";
-                        file = new File(versaoCompactacao);
+                        versaoCompactacaoHuff = "TP3/data/dataHuffmanCompressao" + numV + ".db";
+                        file = new File(versaoCompactacaoHuff);
                         if(file.exists()){
                             System.out.println("Versão " + numV + " disponível.");
                             numV++;
@@ -253,8 +259,11 @@ public class TP {
                     }
                     System.out.print("Digite o número da versão que deseja descompactar: ");
                     numV = sc.nextInt();
-                    versaoCompactacao = "TP3/data/dataHuffmanCompressao" + numV + ".db";
-                    Huffman.descompactacao(versaoCompactacao, numV);
+                    versaoCompactacaoHuff = "TP3/data/dataHuffmanCompressao" + numV + ".db";
+                    String versaoCompactacaoLZW = "TP3/data/dataLZWCompressao" + numV + ".db";
+                    LZW.descompactacao(versaoCompactacaoLZW);
+                    //System.out.println("Arquivo descompactado com sucesso. Conteúdo:\n" + new String(saida));
+                    Huffman.descompactacao(versaoCompactacaoHuff, numV);
                 } else {
                     System.out.println("Nenhuma versão disponível.");
                 }

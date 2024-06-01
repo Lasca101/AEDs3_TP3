@@ -12,6 +12,8 @@ public class Huffman {
     public static final String DATA_PATH = "TP3/data/data.db";
 
     public static void compactacao(String compactacaoPath, int num) {
+        long inicio = System.currentTimeMillis();
+
         RandomAccessFile arq;
         ByteArrayOutputStream baos;
         DataOutputStream dos;
@@ -82,13 +84,20 @@ public class Huffman {
             String arvorePath = "TP3/data/dataHuffmanArvore" + num + ".db";
             armazenaArvore(listNos.get(0), arvorePath);
 
-            System.out.println("Base de dados compactada com sucesso.");
+            System.out.println("\nArquivo codificado Huffman tem " + txtCodificado.length + " bytes");
+            float taxaCompressao = calculaTaxa(txt.length, txtCodificado.length);
+            System.out.printf("Taxa de compressão Huffman: %.2f%n", taxaCompressao);
+            long fim = System.currentTimeMillis();
+            System.out.println("Compactação Huffman levou " + (fim-inicio) + " milisegundos");
+
+            System.out.println("\nBase de dados compactada com sucesso.");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public static void descompactacao(String compressedPath, int num) {
+        long inicio = System.currentTimeMillis();
         RandomAccessFile arqCompress;
         RandomAccessFile arqDescompress;
         try {
@@ -121,6 +130,9 @@ public class Huffman {
             }
 
             arqDescompress.close();
+
+            long fim = System.currentTimeMillis();
+            System.out.println("Descompactação Huffman levou " + (fim-inicio) + " milisegundos");
 
             System.out.println("\nBase de dados descompactada com sucesso.");
         } catch (Exception e) {
@@ -201,6 +213,14 @@ public class Huffman {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static float calculaTaxa(int tamOriginal, int tamComprimido) {
+        float tamOriginalFloat = tamOriginal;
+        float tamComprimidoFloat = tamComprimido;
+
+        return tamComprimidoFloat / tamOriginalFloat * 100;
+
     }
     
 }
