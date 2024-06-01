@@ -31,8 +31,9 @@ public class Main {
                 numArqCompactados++;
                 //Huffman
             }else{
+                String op = "COMPRIMIR";
                 numArqCompactados++;
-                //lzw
+                LZW.algoritmo(op);
             }
         }else if(opcao == 2){
             System.out.println("Digite o número do arquivo que deseja descompactar(entre 1 e " + numArqCompactados + "): ");
