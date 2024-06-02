@@ -208,67 +208,66 @@ public class TP {
 
                 menu();
                 break;
-            
+
+            // Compactar
             case 5:
                 System.out.println("\n#------------------------------------#\nCompactar base de dados.");
-                String ultimaCompactacaoHuff = "TP3/data/dataHuffmanCompressao1.db";
-                String ultimaCompactacaoLZW = "TP3/data/dataLZWCompressao1.db";
+                String ultimaCompactacaoHuff = "TP3/data/dataHuffmanCompressao1.db"; // Caminho para a primeira versão da compactação Huffman
+                String ultimaCompactacaoLZW = "TP3/data/dataLZWCompressao1.db"; // Caminho para a primeira versão da compactação LZW
                 
-                int num = 1;
+                int num = 1; // Número da versão inicial
                 File fileUltimaCompactacao = new File(ultimaCompactacaoHuff);
-                if(fileUltimaCompactacao.exists()){
+                if (fileUltimaCompactacao.exists()) {
                     boolean versao = true;
-                    while(versao){
-                        ultimaCompactacaoHuff = "TP3/data/dataHuffmanCompressao" + num + ".db";
+                    while (versao) {
+                        ultimaCompactacaoHuff = "TP3/data/dataHuffmanCompressao" + num + ".db"; // Atualiza o caminho com a nova versão
                         fileUltimaCompactacao = new File(ultimaCompactacaoHuff);
-                        if(fileUltimaCompactacao.exists()){
-                            num++;
+                        if (fileUltimaCompactacao.exists()) {
+                            num++; // Incrementa o número da versão se o arquivo já existir
                         } else {
-                            versao = false;
+                            versao = false; // Sai do loop se o arquivo não existir
                         }
                     }
-                    ultimaCompactacaoLZW = "TP3/data/dataLZWCompressao" + num + ".db";
-                    LZW.compactacao(ultimaCompactacaoLZW);
-                    Huffman.compactacao(ultimaCompactacaoHuff, num);
+                    ultimaCompactacaoLZW = "TP3/data/dataLZWCompressao" + num + ".db"; // Atualiza o caminho da versão LZW
+                    LZW.compactacao(ultimaCompactacaoLZW); // Chama a compactação LZW
+                    Huffman.compactacao(ultimaCompactacaoHuff, num); // Chama a compactação Huffman
                 } else {
-                    LZW.compactacao(ultimaCompactacaoLZW);
-                    Huffman.compactacao(ultimaCompactacaoHuff, num);
+                    LZW.compactacao(ultimaCompactacaoLZW); // Compacta usando LZW se for a primeira versão
+                    Huffman.compactacao(ultimaCompactacaoHuff, num); // Compacta usando Huffman se for a primeira versão
                 }
                 
-                menu();
+                menu(); // Retorna ao menu principal
                 break;
             
+            // Descompactar
             case 6:
                 System.out.println("\n#------------------------------------#\nDescompactar base de dados.");
-                //escolher versao da compressao para descompactar
-                
-                String versaoCompactacaoHuff = "TP3/data/dataHuffmanCompressao1.db";
+                String versaoCompactacaoHuff = "TP3/data/dataHuffmanCompressao1.db"; // Caminho para a primeira versão da compactação Huffman
                 File file = new File(versaoCompactacaoHuff);
-                if(file.exists()){
+                if (file.exists()) {
                     boolean versao = true;
-                    int numV = 1;
-                    while(versao){
-                        versaoCompactacaoHuff = "TP3/data/dataHuffmanCompressao" + numV + ".db";
+                    int numV = 1; // Número da versão inicial
+                    while (versao) {
+                        versaoCompactacaoHuff = "TP3/data/dataHuffmanCompressao" + numV + ".db"; // Atualiza o caminho com a nova versão
                         file = new File(versaoCompactacaoHuff);
-                        if(file.exists()){
-                            System.out.println("Versão " + numV + " disponível.");
-                            numV++;
+                        if (file.exists()) {
+                            System.out.println("Versão " + numV + " disponível."); // Informa a versão disponível
+                            numV++; // Incrementa o número da versão se o arquivo já existir
                         } else {
-                            versao = false;
+                            versao = false; // Sai do loop se o arquivo não existir
                         }
                     }
                     System.out.print("Digite o número da versão que deseja descompactar: ");
-                    numV = sc.nextInt();
-                    versaoCompactacaoHuff = "TP3/data/dataHuffmanCompressao" + numV + ".db";
-                    String versaoCompactacaoLZW = "TP3/data/dataLZWCompressao" + numV + ".db";
-                    LZW.descompactacao(versaoCompactacaoLZW);
-                    //System.out.println("Arquivo descompactado com sucesso. Conteúdo:\n" + new String(saida));
-                    Huffman.descompactacao(versaoCompactacaoHuff, numV);
+                    numV = sc.nextInt(); // Solicita o número da versão a ser descompactada
+                    versaoCompactacaoHuff = "TP3/data/dataHuffmanCompressao" + numV + ".db"; // Atualiza o caminho com a versão escolhida
+                    String versaoCompactacaoLZW = "TP3/data/dataLZWCompressao" + numV + ".db"; // Atualiza o caminho da versão LZW
+                    LZW.descompactacao(versaoCompactacaoLZW); // Chama a descompactação LZW
+                    Huffman.descompactacao(versaoCompactacaoHuff, numV); // Chama a descompactação Huffman
                 } else {
-                    System.out.println("Nenhuma versão disponível.");
+                    System.out.println("Nenhuma versão disponível."); // Informa se nenhuma versão está disponível
                 }
                 
-                menu();
+                menu(); // Retorna ao menu principal
                 break;
 
             case 7:
